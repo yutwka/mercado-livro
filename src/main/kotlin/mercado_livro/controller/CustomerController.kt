@@ -1,5 +1,6 @@
 package mercado_livro.controller
 
+import jakarta.validation.Valid
 import mercado_livro.controller.request.PostCustomerRequest
 import mercado_livro.controller.request.PutCustomerRequest
 import mercado_livro.controller.response.CustomerResponse
@@ -32,7 +33,7 @@ class CustomerController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody customer: PostCustomerRequest) {
+    fun create(@RequestBody @Valid customer: PostCustomerRequest) {
 
         customerService.create(customer.toCustomerModel())
     }
