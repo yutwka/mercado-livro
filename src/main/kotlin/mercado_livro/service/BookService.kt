@@ -52,6 +52,6 @@ class BookService(
     }
 
     fun findAllByIds(bookIds: Set<Int>): List<BookModel> {
-        bookRepository.findAllById(bookIds).toList()
+        return bookRepository.findAllById(bookIds).toList()
     }
 }

@@ -32,7 +32,7 @@ data class PurchaseModel(
     val books: List<BookModel>,
 
     @Column
-    val nfe: Strin? = null,
+    val nfe: String? = null,
 
     @Column
     val price: BigDecimal,
