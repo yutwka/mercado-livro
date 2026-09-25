@@ -1,10 +1,15 @@
 package mercado_livro.service
 
 import mercado_livro.enums.BookStatus
+import mercado_livro.enums.Errors
+import mercado_livro.exception.NotFoundException
 import mercado_livro.model.BookModel
 import mercado_livro.model.CustomerModel
 import mercado_livro.repository.BookRepository
+import org.springframework.data.domain.Page
 import org.springframework.stereotype.Service
+import org.springframework.data.domain.Pageable
+import java.awt.print.Book
 
 @Service
 class BookService(
@@ -14,16 +19,16 @@ class BookService(
         bookRepository.save(book)
     }
 
-    fun findAll(): List<BookModel> {
-        return bookRepository.findAll().toList()
+    fun findAll(pageable: Pageable): Page<BookModel> {
+        return bookRepository.findAll(pageable)
     }
 
-    fun findActives(): List<BookModel> {
-        return bookRepository.findByStatus(BookStatus.ATIVO)
+    fun findActives(pageable: Pageable): Page<BookModel> {
+        return bookRepository.findByStatus(BookStatus.ATIVO, pageable)
     }
 
     fun findById(id: Int): BookModel {
-        return bookRepository.findById(id).orElseThrow()
+        return bookRepository.findById(id).orElseThrow{ NotFoundException(Errors.ML101.message.format(id), Errors.ML101.code) }
     }
 
     fun delete(id: Int) {
@@ -47,4 +52,14 @@ class BookService(
         bookRepository.saveAll(books)
     }
 
+    fun findAllByIds(bookIds: Set<Int>): List<BookModel> {
+        return bookRepository.findAllById(bookIds).toList()
+    }
+
+    fun purchase(books: MutableList<BookModel>) {
+        books.map {
+            it.status = BookStatus.VENDIDO
+        }
+        bookRepository.saveAll(books)
+    }
 }

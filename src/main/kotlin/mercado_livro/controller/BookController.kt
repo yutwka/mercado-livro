@@ -1,11 +1,15 @@
 package mercado_livro.controller
 
+import jakarta.validation.Valid
 import mercado_livro.controller.request.PostBookRequest
 import mercado_livro.controller.request.PutBookRequest
+import mercado_livro.controller.response.BookResponse
 import mercado_livro.extension.toBookModel
-import mercado_livro.model.BookModel
+import mercado_livro.extension.toResponse
 import mercado_livro.service.BookService
 import mercado_livro.service.CustomerService
+import org.springframework.data.domain.Page
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.data.domain.Pageable
 
 @RestController
 @RequestMapping("books")
@@ -26,23 +31,23 @@ class BookController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody request: PostBookRequest) {
+    fun create(@RequestBody @Valid request: PostBookRequest) {
         val customer = customerService.findById(request.customerId)
         bookService.create(request.toBookModel(customer))
     }
 
     @GetMapping
-    fun findAll(): List<BookModel> {
-        return bookService.findAll()
+    fun findAll(@PageableDefault(page = 0, size = 10) pageable: Pageable): Page<BookResponse> {
+        return bookService.findAll(pageable).map { it.toResponse() }
     }
 
     @GetMapping("/actives")
-    fun findActives(): List<BookModel> =
-        bookService.findActives()
+    fun findActives(@PageableDefault(page = 0, size = 10) pageable: Pageable): Page<BookResponse> =
+        bookService.findActives(pageable).map { it.toResponse() }
 
     @GetMapping("/{id}")
-    fun findById(@PathVariable id: Int): BookModel {
-        return bookService.findById(id)
+    fun findById(@PathVariable id: Int): BookResponse {
+        return bookService.findById(id).toResponse()
     }
 
     @DeleteMapping("/{id}")
@@ -53,7 +58,7 @@ class BookController(
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun update(@PathVariable id: Int, @RequestBody book: PutBookRequest) {
+    fun update(@PathVariable id: Int, @RequestBody @Valid book: PutBookRequest) {
         val bookSaved = bookService.findById(id)
         bookService.update(book.toBookModel(bookSaved))
     }

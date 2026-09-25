@@ -1,14 +1,19 @@
 package mercado_livro.model
 
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.EnumeratedValue
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
 import mercado_livro.enums.CustomerStatus
+import mercado_livro.enums.Profile
 import mercado_livro.service.CustomerService
 
 @Entity(name = "customer")
@@ -26,5 +31,14 @@ data class CustomerModel(
 
     @Column
     @Enumerated(EnumType.STRING)
-    var status: CustomerStatus
+    var status: CustomerStatus,
+
+    @Column
+    val password: String,
+
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    @ElementCollection(targetClass = Profile::class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "customer_roles", joinColumns = [JoinColumn(name = "customer_id")])
+    var roles: Set<Profile> = setOf()
 )
